@@ -1,0 +1,37 @@
+{
+  "method": "static-host decomposition + constrained 4D TV-FISTA",
+  "angles_deg": [
+    0.0,
+    30.0,
+    48.0
+  ],
+  "noise_sigma_air": 0.002318640627866059,
+  "tv_weight": 0.009274562511464236,
+  "sparsity_weight": 0.0004637281255732118,
+  "temporal_weight": 0.25,
+  "step_size": 0.0094507996346252,
+  "iterations": 80,
+  "final_relative_change": 0.0016403282162189192,
+  "projection_rmse": 0.002913594706124988,
+  "dynamic_voxel_fraction_abs_gt_0p002": 0.0082763671875,
+  "static_fit": {
+    "active_z_first": 4,
+    "active_z_last": 28,
+    "center_x_voxels": 15.5,
+    "center_y_voxels": 15.5,
+    "radius_voxels": 12.25,
+    "solid_attenuation": 0.039906807559674226,
+    "static_fit_rmse": 0.0003109164625910651
+  },
+  "config": {
+    "max_iterations": 80,
+    "min_iterations": 25,
+    "relative_tolerance": 2e-05,
+    "temporal_weight": 0.25,
+    "tv_noise_multiplier": 4.0,
+    "sparsity_noise_multiplier": 0.2,
+    "tv_inner_iterations": 12,
+    "tv_tolerance": 2e-05,
+    "support_energy_fraction": 0.1
+  }
+}
