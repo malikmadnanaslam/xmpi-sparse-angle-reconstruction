@@ -74,17 +74,40 @@ def reconstruct_fbp(sinograms, angles_deg, grid, **iradon_kwargs):
     -------
     volumes : (n_steps, grid, grid, grid) array
     """
-    # TODO: implement this.
-    #
-    # Sketch:
-    #   for each time step t:
-    #       for each slice z:
-    #           sl = iradon(sinograms[t, z], theta=angles_deg,
-    #                       output_size=grid, circle=False, **iradon_kwargs)
-    #           store sl into volumes[t, z]
-    #
-    # Watch the array shapes: iradon expects (n_detector, n_angles).
-    raise NotImplementedError("Implement filtered back-projection here.")
+    sinograms = np.asarray(sinograms, dtype=np.float64)
+    angles_deg = np.asarray(angles_deg, dtype=np.float64)
+
+    if sinograms.ndim != 4:
+        raise ValueError(
+            "sinograms must have shape (time, z, detector, angle); "
+            f"received {sinograms.shape}"
+        )
+    if sinograms.shape[-1] != angles_deg.size:
+        raise ValueError(
+            f"sinogram has {sinograms.shape[-1]} views but "
+            f"{angles_deg.size} angles were supplied"
+        )
+    if grid <= 0:
+        raise ValueError("grid must be a positive integer")
+
+    # Keep Part A as an unregularized baseline.  In particular, do not clip
+    # negative streaks here: they are a genuine symptom of applying FBP to
+    # severely incomplete angular data and should remain visible.
+    iradon_kwargs = {"filter_name": "ramp", **iradon_kwargs}
+    n_steps, nz = sinograms.shape[:2]
+    volumes = np.empty((n_steps, nz, grid, grid), dtype=np.float64)
+
+    for t in range(n_steps):
+        for z in range(nz):
+            volumes[t, z] = iradon(
+                sinograms[t, z],
+                theta=angles_deg,
+                output_size=grid,
+                circle=False,
+                **iradon_kwargs,
+            )
+
+    return volumes
 
 
 def main():
@@ -96,13 +119,21 @@ def main():
     print(f"Full dataset: {full['sinograms'].shape}, "
           f"{len(full['angles_deg'])} angles over 180 deg")
 
-    recon_xmpi = reconstruct_fbp(xmpi["sinograms"], xmpi["angles_deg"], grid)
+    # With only three views, the Hann taper suppresses the high-frequency
+    # streak amplification seen with a ramp.  For the well-sampled reference,
+    # retain the sharper ramp response.  NOTES.md reports the full filter
+    # comparison rather than presenting these choices without context.
+    recon_xmpi = reconstruct_fbp(
+        xmpi["sinograms"], xmpi["angles_deg"], grid, filter_name="hann"
+    )
     np.savez_compressed("recon_fbp_xmpi.npz", volumes=recon_xmpi)
-    print("Saved recon_fbp_xmpi.npz", recon_xmpi.shape)
+    print("Saved recon_fbp_xmpi.npz", recon_xmpi.shape, "filter=hann")
 
-    recon_full = reconstruct_fbp(full["sinograms"], full["angles_deg"], grid)
+    recon_full = reconstruct_fbp(
+        full["sinograms"], full["angles_deg"], grid, filter_name="ramp"
+    )
     np.savez_compressed("recon_fbp_full.npz", volumes=recon_full)
-    print("Saved recon_fbp_full.npz", recon_full.shape)
+    print("Saved recon_fbp_full.npz", recon_full.shape, "filter=ramp")
 
 
 if __name__ == "__main__":
