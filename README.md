@@ -9,7 +9,7 @@ Full instructions are in the accompanying document
 ## Setup
 
 ```bash
-pip install numpy scikit-image matplotlib
+pip install -r requirements.txt
 python generate_dataset.py
 ```
 
@@ -47,6 +47,20 @@ the priors and methods worth considering.
 python evaluate.py                 # NCC / PSNR / SSIM for whatever you have saved
 python show_slices.py --t 5 --z 20 # side-by-side slice comparison -> slices.png
 ```
+
+The completed solution can be reproduced with:
+
+```bash
+python generate_dataset.py
+python part_A_fbp_TASK.py
+python part_B_advanced_TASK.py
+python evaluate.py
+python -m unittest discover -s tests -v
+```
+
+`part_B_advanced_TASK.py` also writes `reconstruction_diagnostics.json`, which
+contains only projection-domain and fitted-prior diagnostics; it does not use
+the held-out truth. See `NOTES.md` for the method, results and limitations.
 
 ## Files
 
