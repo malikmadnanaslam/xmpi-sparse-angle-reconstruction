@@ -27,7 +27,7 @@ The filter matters, but cannot replace missing angles. A final post-hoc filter c
 
 I modelled each volume as a static host (b) plus a non-positive dynamic contrast (d_t). The host is a stated physical property of the experiment - a static cylindrical specimen - but its z-support, centre, radius and attenuation were estimated only from the XMPI data. A time/z median suppresses the translating reduced-attenuation region; fitting the exact `skimage.radon` operator then gave centre `(15.5, 15.5)` voxels, radius `12.25` voxels, solid attenuation `0.03991`, and projection RMSE `3.11e-4`. The code never imports `phantom.py` or reads the held-out truth.
 
-For the dynamic contrast I minimized, using FISTA-style accelerated proximal iterations,
+For the dynamic contrast I used FISTA-style accelerated projected proximal iterations on
 
 \[
 \tfrac12\|A d-(p-A b)\|_2^2 + \lambda_s\,\mathrm{TV}_{3D}(d)
@@ -35,7 +35,9 @@ For the dynamic contrast I minimized, using FISTA-style accelerated proximal ite
 \qquad -b\le d\le0.
 \]
 
-`A` is constructed from unit-impulse Radon projections, so its padding and interpolation exactly match the supplied forward model. The constraints enforce bounded support and (0\le b+d\le b); 3D TV encodes compact piecewise-constant changes, mild one-sided L1 shrinkage suppresses isolated noise, and the temporal term shares information across the ten frames.
+`A` is constructed from unit-impulse Radon projections, so its padding and interpolation exactly match the supplied forward model. The constraints enforce bounded support and `0 <= b+d <= b`; 3D TV encodes compact piecewise-constant changes, mild one-sided L1 shrinkage suppresses isolated noise, and the temporal term shares information across the ten frames.
+
+TV denoising and the elementwise shrinkage/box projection are composed sequentially, so this is a practical splitting approximation rather than an exact proximal map for the sum of nonsmooth terms. A primal-dual implementation would be my next choice for a more formal optimizer.
 
 Regularization was chosen without truth. Robust air-ray noise was `sigma=2.32e-3`; I set `lambda_s=4 sigma=9.27e-3`, `lambda_1=0.2 sigma=4.64e-4`, and `lambda_t=0.25`. The final reprojection RMSE was `2.91e-3`, close to the log-Poisson noise scale. A data-only sweep of TV multipliers `0, 2, 4, 8` gave projection RMSE `0.00247, 0.00280, 0.00291, 0.00316`; the chosen factor 4 is near the discrepancy elbow and roughly halves spatial roughness relative to no TV. Weaker regularization fits noise and leaves angular ghosts; stronger TV shrinks/rounds the pool, temporally lags motion and removes the keyhole.
 
