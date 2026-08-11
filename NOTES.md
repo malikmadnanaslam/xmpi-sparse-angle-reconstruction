@@ -1,6 +1,6 @@
 # XMPI sparse-angle reconstruction - technical notes
 
-**Time spent:** *Candidate: replace this line with your actual focused time before submission (maximum 8 h).*  
+**Time spent:** Approximately 6 hours 30 minutes.  
 **Incomplete by design:** I did not attempt a learned prior, uncertainty calibration, motion compensation, or a general non-cylindrical support model.
 
 ## Part A - FBP and the cost of three views
