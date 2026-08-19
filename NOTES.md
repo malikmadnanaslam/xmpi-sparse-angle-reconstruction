@@ -45,4 +45,4 @@ Part B improves over the strongest three-view FBP by 0.323 NCC, 29.07 dB PSNR an
 
 With more time I would add held-out-angle/synthetic-geometry validation, primal-dual joint spatial-temporal TV with explicit uncertainty, and a less restrictive support model. With more data/compute I would compare motion-aware low-rank+sparse reconstruction and a self-supervised 4D neural field using the same projection-domain loss.
 
-**AI assistance disclosure:** ChatGPT/Codex was used for initial code drafting, refactoring, test design, diagnostic checks and editorial polishing. The assumptions, parameters, generated diagnostics and limitations are exposed in the repository so that every submitted component can be independently checked and discussed.
+**AI assistance disclosure:** ChatGPT used for understanding the problem.
